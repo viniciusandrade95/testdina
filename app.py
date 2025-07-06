@@ -17,6 +17,9 @@ def webhook():
     This endpoint handles both webhook verification (GET) and
     event notifications (POST) from WhatsApp.
     """
+    # ADD THIS LINE FOR DEBUGGING
+    print(f"Token loaded from environment: '{VERIFY_TOKEN}'")
+
     if request.method == 'GET':
         # This is the verification request from WhatsApp
         if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.verify_token") == VERIFY_TOKEN:
@@ -30,13 +33,11 @@ def webhook():
             return "Verification token mismatch", 403
 
     if request.method == 'POST':
-        # This is an event notification from WhatsApp
+        # ... (the rest of the code is unchanged) ...
         data = request.get_json()
         print("Webhook received:")
-        print(data) # Log the full payload to see its structure
+        print(data) 
 
-        # Here, you would add your logic to process the WhatsApp message
-        # For example, check for 'messages' in the payload
         if data.get('object') == 'whatsapp_business_account':
             try:
                 for entry in data.get('entry', []):
@@ -50,14 +51,10 @@ def webhook():
             except Exception as e:
                 print(f"Error processing webhook: {e}")
 
-
         return jsonify({"status": "success"}), 200
 
-    # If the request is not GET or POST
     return "Method Not Allowed", 405
 
 if __name__ == '__main__':
-    # Railway provides the PORT environment variable
     port = int(os.environ.get('PORT', 5000))
-    # Running on 0.0.0.0 is important to be accessible externally
     app.run(host='0.0.0.0', port=port)
